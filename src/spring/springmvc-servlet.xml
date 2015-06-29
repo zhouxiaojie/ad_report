@@ -12,14 +12,7 @@
     http://www.springframework.org/schema/mvc  
     http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
-	<context:component-scan base-package="com.ocean.ad"></context:component-scan>
 
-	<!-- 默认的注解映射的支持 -->
-	<mvc:annotation-driven />
-	<!-- 扫描controle层 -->
-	<context:component-scan base-package="com.ocean.ad.report.controller" />
-
-	<tx:annotation-driven />
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="defaultEncoding" value="UTF-8" />

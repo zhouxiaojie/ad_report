@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,6 +26,7 @@ public class AdminController extends BaseController{
 	
 	@Resource
 	private IUserDao userDao;
+	@Transactional
 	@RequestMapping(value="login.json",method=RequestMethod.POST)
 	@ResponseBody
 	public Result login(String username,String password,HttpServletRequest request,HttpServletResponse response){
@@ -46,7 +48,7 @@ public class AdminController extends BaseController{
 		session.invalidate();
 		return "redirect:login.jsp";
 	}
-	
+	@Transactional
 	@RequestMapping(value="admin/user/addupdateuser.json",method=RequestMethod.POST)
 	@ResponseBody
 	public Result addUpdateUser(Integer id,String username,String remark){
@@ -92,7 +94,7 @@ public class AdminController extends BaseController{
 	public User selectUserById(int id){
 		return userDao.selectUserById(id);
 	}
-	
+	@Transactional(rollbackFor=Exception.class)
 	@RequestMapping(value="admin/user/updatepass.json",method=RequestMethod.POST)
 	@ResponseBody
 	public Result updatepass(String oldpass,String newpass,HttpServletRequest request){
@@ -101,9 +103,11 @@ public class AdminController extends BaseController{
 		Result re = new Result();
 		if(user!=null){
 			userDao.updatePass(user.getId(),MD5.GetMD5Code(newpass));
+			throw new RuntimeException("1");
 		}else{
 			re.setCode(Result.USER_ERROR);
 		}
+		
 		return re;
 	}
 }

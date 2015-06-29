@@ -66,7 +66,7 @@
 				<ul class="sidebar-menu">
 					<li class="active"><a href="#" menu="<%=request.getContextPath() %>/admin/admin.jsp" onclick="addMenu(this)" ><span>账户管理</span>
 					</a></li>
-					<li class="treeview"><a href="#"> <span>报表</span>
+					<li class="treeview active"><a href="#"> <span>报表</span>
 					</a>
 						<ul class="treeview-menu">
 							<li><a href="#" menu="user_report.jsp" onclick="addMenu(this)" >用户报表</a></li>
@@ -136,7 +136,9 @@
 <%@include file="../includeJs.jsp" %>
 <script type="text/javascript">
 function addMenu(obj){
-	$("#mainFrame").attr("src",$(obj).attr("menu"))
+	$("#mainFrame").attr("src",$(obj).attr("menu"));
+	$(".sidebar-menu li").removeClass("active");
+	$(obj).parent().addClass("active");
 }
 $(function(){
 	$('#passModal').on('hide.bs.modal', function () {
