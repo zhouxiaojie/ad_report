@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ocean.ad.report.constant.TablePre;
 import com.ocean.ad.report.controller.resp.BootgridResult;
 import com.ocean.ad.report.dao.IReportDao;
 import com.ocean.ad.report.model.DonutVo;
@@ -40,7 +41,16 @@ public class ReportController extends BaseController{
 	@RequestMapping(value="admin/report/selectusereport.json",method=RequestMethod.POST)
 	@ResponseBody
 	public BootgridResult<UserReport> selectUserReport(String start,String end,HttpServletRequest req){
-		 List<UserReport> data = reportDao.selectLogEventUV(start, end);
+		String tableName = TablePre.LOG_EVENT_LOG_COUNT;
+		Integer startY = Integer.parseInt(start.substring(0, 4));
+		Integer endY = Integer.parseInt(end.substring(0, 4));
+		List<UserReport> data = new ArrayList<UserReport>();
+		for(;startY<=endY;startY++){
+			 List<UserReport> l = reportDao.selectLogEventUV(tableName+startY,start, end+" 23:59");
+			 if(l!=null&&l.size()>0)
+				 data.addAll(l);
+			 
+		}
 		 BootgridResult<UserReport> re = new BootgridResult<>(0, 0,data,0);
 		return re;
 	}
@@ -48,7 +58,16 @@ public class ReportController extends BaseController{
 	@RequestMapping(value="admin/report/selectuserdonut.json",method=RequestMethod.POST)
 	@ResponseBody
 	public List<DonutVo> selectUserDonut(String start,String end,HttpServletRequest req){
-		 List<UserReport> data = reportDao.selectLogEventUV(start, end);
+		String tableName = TablePre.LOG_EVENT_LOG_COUNT;
+		Integer startY = Integer.parseInt(start.substring(0, 4));
+		Integer endY = Integer.parseInt(end.substring(0, 4));
+		List<UserReport> data = new ArrayList<UserReport>();
+		for(;startY<=endY;startY++){
+			 List<UserReport> l = reportDao.selectLogEventUV(tableName+startY,start, end+" 23:59");
+			 if(l!=null&&l.size()>0)
+				 data.addAll(l);
+			 
+		}
 		 List<DonutVo> vdata = new ArrayList<DonutVo>();
 		 for (UserReport ur : data) {
 			 DonutVo v = new DonutVo(ur.getEvent(),ur.getDefaultUserNum());
@@ -60,7 +79,16 @@ public class ReportController extends BaseController{
 	@RequestMapping(value="admin/report/selectusereportonday.json",method=RequestMethod.POST)
 	@ResponseBody
 	public List<UserReportOnDayVo> selectUserReportOnDay(String start,String end,HttpServletRequest req){
-		List<UserReportOnDay> data=	reportDao.selectLogEventUVOnDay(start, end);
+		String tableName = TablePre.LOG_EVENT_LOG_COUNT;
+		Integer startY = Integer.parseInt(start.substring(0, 4));
+		Integer endY = Integer.parseInt(end.substring(0, 4));
+		List<UserReportOnDay> data = new ArrayList<UserReportOnDay>();
+		for(;startY<=endY;startY++){
+			 List<UserReportOnDay> l = reportDao.selectLogEventUVOnDay(tableName+startY,start, end+" 23:59");
+			 if(l!=null&&l.size()>0)
+				 data.addAll(l);
+			 
+		}
 		List<UserReportOnDayVo> voDate = new ArrayList<UserReportOnDayVo>();
 		Set<String> set = new LinkedHashSet<>();
 		for (UserReportOnDay d : data) {
@@ -86,7 +114,7 @@ public class ReportController extends BaseController{
 		 return voDate;
 	}
 	/**
-	 * 今天数据
+	 * 今天数据,昨天数据,
 	 * */
 	@RequestMapping(value="admin/report/eventonmin.json",method=RequestMethod.POST)
 	@ResponseBody
@@ -121,23 +149,6 @@ public class ReportController extends BaseController{
 		map.put("y",ydata);
 		map.put("d",ddata);
 		 return map;
-	}
-	/**
-	 * 昨天数据
-	 * */
-	@RequestMapping(value="admin/report/eventonminy.json",method=RequestMethod.POST)
-	@ResponseBody
-	public List<EventMonitorLineVo> selectEventOnMinY(String event,Integer interval){
-		Date now = new Date();
-		Calendar ca = Calendar.getInstance();
-		ca.setTime(now);
-		ca.add(Calendar.DAY_OF_YEAR,-1);
-		ca.set(Calendar.HOUR_OF_DAY, 0);
-		ca.set(Calendar.MINUTE, 0);
-		ca.set(Calendar.SECOND,0);
-		ca.set(Calendar.MILLISECOND,0);
-		List<EventMonitorLineVo> ydata=	reportService.getEventOnMin(ca,event,interval==null?1:interval,false,now);
-		 return ydata;
 	}
 	
 	/**

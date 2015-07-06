@@ -12,24 +12,24 @@ import com.ocean.ad.report.model.UserReportOnDay;
 public interface IReportDao {
 
 	
-	@Select("select count(*) as userNum,event from (select distinct imei,mac,event from log_event where "
-			+ "imei is not null and date_format(create_time,'%Y-%m-%d') >= #{start} and date_format(create_time,'%Y-%m-%d') <=#{end}) a group by event;") 
-	public List<UserReport> selectLogEventUV(@Param("start")String start,@Param("end")String end);
+	@Select("select sum(uv) as userNum,event from ${tableName} where "
+			+ " min_date >= #{start} and min_date <=#{end}  group by event;") 
+	public List<UserReport> selectLogEventUV(@Param("tableName")String tableName,@Param("start")String start,@Param("end")String end);
 	
-	@Select("select count(*) as userNum,event,date from (select distinct imei,mac,event,date_format(create_time,'%Y-%m-%d') as date from log_event where "
-			+ "imei is not null and date_format(create_time,'%Y-%m-%d') >= #{start} and date_format(create_time,'%Y-%m-%d') <=#{end}) a group by event,date;") 
-	public List<UserReportOnDay> selectLogEventUVOnDay(@Param("start")String start,@Param("end")String end);
+	@Select("select sum(uv) as userNum,event,substring(min_date,0,10) as date from ${tableName} where "
+			+ "min_date >= #{start} and min_date <=#{end}  group by event,date;") 
+	public List<UserReportOnDay> selectLogEventUVOnDay(@Param("tableName") String tableName,@Param("start")String start,@Param("end")String end);
 	
-	@Select("SELECT count(*) as num,date_format(create_time,'%Y-%m-%d %H:%i') as time FROM ad_interface.log_event where "
-			+ "event =#{event} and date_format(create_time,'%Y-%m-%d')=#{date}  group by time order by time;")
-	public List<EventMonitorLineVo> selectLogEventOnMin(@Param("date") String date,@Param("event") String event);
+	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
+			+ "event =#{event} and min_date like concat(#{date},'%') order by time;")
+	public List<EventMonitorLineVo> selectLogEventOnMin(@Param("tableName") String tableName,@Param("event") String event,@Param("date") String date);
 	
-	@Select("SELECT count(*) as num,date_format(create_time,'%Y-%m-%d %H:%i') as time FROM ad_interface.log_event where "
-			+ "event =#{event} and date_format(create_time,'%Y-%m-%d')=#{date} and date_format(create_time,'%Y-%m-%d %H:%i') > #{currMin} group by time order by time;")
-	public List<EventMonitorLineVo> selectLogEventIncrOnMin(@Param("date") String date,@Param("event") String event,@Param("currMin") String currMin);
+	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
+			+ "event =#{event} and min_date > #{currMin} group by time order by time;")
+	public List<EventMonitorLineVo> selectLogEventIncrOnMin(@Param("tableName") String tableName,@Param("event") String event,@Param("currMin") String currMin);
 	
-	@Select("SELECT count(*) as num,date_format(create_time,'%Y-%m-%d %H:%i') as time FROM ad_interface.log_event where "
-			+ "event =#{event} and date_format(create_time,'%Y-%m-%d %H:%i') >= #{start} and date_format(create_time,'%Y-%m-%d %H:%i') < #{end}  group by time order by time;")
-	public List<EventMonitorLineVo> selectLogEventDynOnMin(@Param("start") String start,@Param("end") String end,@Param("event") String event);
+	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
+			+ "event =#{event} and min_date >= #{start} and min_date < #{end} order by time;")
+	public List<EventMonitorLineVo> selectLogEventDynOnMin(@Param("tableName") String tableName,@Param("start") String start,@Param("end") String end,@Param("event") String event);
 
 }
