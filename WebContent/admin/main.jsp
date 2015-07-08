@@ -69,10 +69,8 @@
 					<li class="treeview active"><a href="#"> <span>报表</span>
 					</a>
 						<ul class="treeview-menu">
-							<li><a href="#" menu="user_report.jsp" onclick="addMenu(this)" >用户报表</a></li>
-							<li><a href="#" menu="user_report_on_day.jsp" onclick="addMenu(this)" >用户趋势图</a></li>
-							<li><a href="#" menu="user_report_donut.jsp" onclick="addMenu(this)" >用户圆环图</a></li>
-							<li><a href="#" menu="req_report_line.jsp" onclick="addMenu(this)" >广告展示数趋势图</a></li>
+							<li><a href="#" menu="report/report_on_day.jsp" onclick="addMenu(this)" >广告趋势图</a></li>
+							<li><a href="#" menu="report/report_line.jsp" onclick="addMenu(this)" >广告实时趋势图</a></li>
 						</ul></li>
 
 				</ul>

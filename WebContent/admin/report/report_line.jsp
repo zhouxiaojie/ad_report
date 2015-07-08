@@ -7,7 +7,7 @@
    String today = (String)request.getAttribute("today");
 %>
 <head>
-<%@include file="../include.jsp"%>
+<%@include file="../../include.jsp"%>
 <meta
 	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
 	name='viewport'>
@@ -25,9 +25,20 @@
 	<div class="wrapper row-offcanvas row-offcanvas-left">
 		<aside class="right-side" style="margin-left: 0px">
 			<!-- Content Header (Page header) -->
-			<section class="content-header" style="height: 40px">
-				<h4>广告展示数趋势图</h4>
-				
+			<section class="content-header" >
+				<h5>广告实时趋势图</h5>
+				<ol class="breadcrumb">
+					<li class="active">
+						<select class="form-control" id="event_select" onchange="load(this);">
+							<option value="reqad_s">请求成功</option>
+							<option value="reqad_f">请求失败</option>
+							<option value="show_s">展示成功</option>							
+							<option value="show_f">展示失败</option>													
+							<option value="init_s">初始化成功</option>																				
+							<option value="init_f">初始化失败</option>
+						</select>
+					</li>
+				</ol>
 			</section>
 
 			<!-- Main content -->
@@ -52,15 +63,29 @@
 	</div>
 
 </body>
-<%@include file="../includeJs.jsp"%>
+<%@include file="../../includeJs.jsp"%>
 <script type="text/javascript">
 $(function () {
 	
+	load(document.getElementById("event_select"));
 	
-	
+	                                                        
+                         
+   
+});
+
+var si;
+var dyn_si;
+function load(obj){
+	var event = $(obj).val();
 	var interval=15;
 	var point=60 *1000;
-	$.post('<%=request.getContextPath()%>/admin/report/eventonmin.json',{'event':'reqad_s','interval':interval},function(json){
+	if(si)
+		clearInterval(si);
+	if(dyn_si)
+		clearInterval(dyn_si);
+		
+	$.post('<%=request.getContextPath()%>/admin/report/eventonmin.json',{'event':event,'interval':interval},function(json){
 		if(json){
 			var c = [];
 			var y =[] ;
@@ -79,7 +104,9 @@ $(function () {
 			
 			var currMin=json.c[json.c.length-1].time;
 			
-			var dcurrMin=json.d[json.d.length-1].time;
+			var dcurrMin;
+			if(!json.d||json.d.length>0)
+				dcurrMin=json.d[json.d.length-1].time;
 			
 			 $('#container').highcharts({
 				 	title: {                                                                
@@ -99,8 +126,8 @@ $(function () {
 			        	events: {
 			                    load: function () {
 			         				var series = this.series[1];
-			                        setInterval(function () {
-			                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':currMin,'event':'reqad_s','interval':interval},function(json){
+			                        si=setInterval(function () {
+			                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':currMin,'event':event,'interval':interval},function(json){
 	
 			                        		if(json){
 			                        			for(var i=0;i<json.length;i++){
@@ -155,8 +182,8 @@ $(function () {
 			                                                                                
 			                    // set up the updating of the chart each second    
 			                	var series = this.series[0];
-		                        setInterval(function () {
-		                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':dcurrMin,'event':'reqad_s','interval':1},function(json){
+			                	dyn_si=setInterval(function () {
+		                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':dcurrMin,'event':event,'interval':1},function(json){
 
 		                        		if(json){
 		                        			for(var i=0;i<json.length;i++){
@@ -210,12 +237,8 @@ $(function () {
 			 
 		}
 	},'json')                                                                       
-                                                                                
-                         
-   
-});
-
-
+                        
+}
 
 
 </script>

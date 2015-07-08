@@ -7,7 +7,7 @@
    String today = (String)request.getAttribute("today");
 %>
 <head>
-<%@include file="../include.jsp"%>
+<%@include file="../../include.jsp"%>
 <meta
 	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
 	name='viewport'>
@@ -25,8 +25,8 @@
 	<div class="wrapper row-offcanvas row-offcanvas-left">
 		<aside class="right-side" style="margin-left: 0px">
 			<!-- Content Header (Page header) -->
-			<section class="content-header" style="height: 40px">
-				<h4>用户报表</h4>
+			<section class="content-header">
+				<h5>用户报表</h5>
 				<ol class="breadcrumb">
 					<li class="active">
 					<form class="form-inline" >
@@ -54,8 +54,17 @@
 										class="glyphicon glyphicon-th"></span></span>
 								</div>
 					</div>
+					<div class="form-group">
+					<select class ="form-control" id="event_select">
+							<option value="reqad">请求</option>
+							<option value="show">展示</option>													
+							<option value="init">初始化</option>	
+						</select>
+					</div>
 						<button type="button" class="btn btn-primary" onclick="loadData()">查询</button>
+						
 						</form>
+						
 							</li>
 				</ol>
 			</section>
@@ -81,7 +90,7 @@
 	</div>
 
 </body>
-<%@include file="../includeJs.jsp"%>
+<%@include file="../../includeJs.jsp"%>
 <script type="text/javascript">
 	$(function() {
 		"use strict";
@@ -97,17 +106,18 @@
 	});
 	
 	function loadData(){
-		var url = "<%=request.getContextPath()%>/admin/report/selectusereportonday.json";
+		event = $("#event_select").val();
+		var url = "<%=request.getContextPath()%>/admin/report/selectreportonday.json";
 		$("#report-chart").html("");
-		$.post(url,{"start":$("#start").val(),"end":$("#end").val()},function(data){
+		$.post(url,{"start":$("#start").val(),"end":$("#end").val(),"event":event},function(data){
 			 var area = new Morris.Line({
                  element: 'report-chart',
                  resize: true,
                  data: data,
                  xkey: 'fmtDate',
-                 ykeys: ['dau','init_f','show_s'],
-                 labels: ['新增','初始化','展示数'],
-                 lineColors: ['#FF0000', '#46A3FF','#28ff28'],
+                 ykeys: ["succ","fail"],
+                 labels: ['成功数','失败数'],
+                 lineColors: ['#46A3FF','#FF0000'],
                  hideHover: 'auto'
              });
 		},'json')
