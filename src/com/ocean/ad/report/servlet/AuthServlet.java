@@ -33,7 +33,8 @@ public class AuthServlet extends HttpServlet implements Filter {
          HttpSession session = request.getSession(true);
          User user = (User)session.getAttribute("user");
          request.setAttribute("today", DateUtil.DateDefaultFmt(new Date()));
-         if(user!=null){
+         String path = request.getServletPath();
+         if(path.indexOf("admin/report")>-1||user!=null){
         	  arg2.doFilter(arg0, arg1);
          }else{
         	 response.sendRedirect(request.getContextPath()+"/login.jsp"); 

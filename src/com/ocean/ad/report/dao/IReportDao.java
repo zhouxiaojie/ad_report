@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Select;
 
 import com.ocean.ad.report.model.EventMonitorLineVo;
 import com.ocean.ad.report.model.UserReport;
-import com.ocean.ad.report.model.UserReportOnDay;
+import com.ocean.ad.report.model.ReportOnDay;
 
 public interface IReportDao {
 
@@ -16,9 +16,9 @@ public interface IReportDao {
 			+ " min_date >= #{start} and min_date <=#{end}  group by event;") 
 	public List<UserReport> selectLogEventUV(@Param("tableName")String tableName,@Param("start")String start,@Param("end")String end);
 	
-	@Select("select sum(uv) as userNum,event,substring(min_date,0,10) as date from ${tableName} where "
-			+ "min_date >= #{start} and min_date <=#{end}  group by event,date;") 
-	public List<UserReportOnDay> selectLogEventUVOnDay(@Param("tableName") String tableName,@Param("start")String start,@Param("end")String end);
+	@Select("select sum(count) as count,event,substring(min_date,1,10) as date from ${tableName} where "
+			+ "event =#{event}  and min_date >= #{start} and min_date <=#{end}  group by event, date;") 
+	public List<ReportOnDay> selectLogEventCountOnDay(@Param("tableName") String tableName,@Param("start")String start,@Param("end")String end,@Param("event")String event);
 	
 	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
 			+ "event =#{event} and min_date like concat(#{date},'%') order by time;")

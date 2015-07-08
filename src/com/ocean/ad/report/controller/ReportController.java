@@ -23,9 +23,9 @@ import com.ocean.ad.report.controller.resp.BootgridResult;
 import com.ocean.ad.report.dao.IReportDao;
 import com.ocean.ad.report.model.DonutVo;
 import com.ocean.ad.report.model.EventMonitorLineVo;
+import com.ocean.ad.report.model.ReportOnDayVo;
 import com.ocean.ad.report.model.UserReport;
-import com.ocean.ad.report.model.UserReportOnDay;
-import com.ocean.ad.report.model.UserReportOnDayVo;
+import com.ocean.ad.report.model.ReportOnDay;
 import com.ocean.ad.report.service.IReportService;
 import com.ocean.util.DateUtil;
 
@@ -76,35 +76,36 @@ public class ReportController extends BaseController{
 		return vdata;
 	}
 	
-	@RequestMapping(value="admin/report/selectusereportonday.json",method=RequestMethod.POST)
+	@RequestMapping(value="admin/report/selectreportonday.json",method=RequestMethod.POST)
 	@ResponseBody
-	public List<UserReportOnDayVo> selectUserReportOnDay(String start,String end,HttpServletRequest req){
+	public List<ReportOnDayVo> selectUserReportOnDay(String start,String end,String event,HttpServletRequest req){
 		String tableName = TablePre.LOG_EVENT_LOG_COUNT;
 		Integer startY = Integer.parseInt(start.substring(0, 4));
 		Integer endY = Integer.parseInt(end.substring(0, 4));
-		List<UserReportOnDay> data = new ArrayList<UserReportOnDay>();
-		for(;startY<=endY;startY++){
-			 List<UserReportOnDay> l = reportDao.selectLogEventUVOnDay(tableName+startY,start, end+" 23:59");
-			 if(l!=null&&l.size()>0)
-				 data.addAll(l);
-			 
+		String[] events = {event+"_s",event+"_f"};
+		List<ReportOnDayVo> voDate = new ArrayList<ReportOnDayVo>();
+		List<ReportOnDay> data = new ArrayList<ReportOnDay>();
+		for (String eventVal : events) {
+			for(;startY<=endY;startY++){
+				 List<ReportOnDay> l = reportDao.selectLogEventCountOnDay(tableName+startY,start, end+" 23:59",eventVal);
+				 if(l!=null&&l.size()>0)
+					 data.addAll(l);			 
+			}
 		}
-		List<UserReportOnDayVo> voDate = new ArrayList<UserReportOnDayVo>();
+		
 		Set<String> set = new LinkedHashSet<>();
-		for (UserReportOnDay d : data) {
+		for (ReportOnDay d : data) {
 			set.add(d.getDate());
 		}
 		for (String date : set) {
-			UserReportOnDayVo v = new UserReportOnDayVo();
+			ReportOnDayVo v = new ReportOnDayVo();
 			v.setFmtDate(date);
-			for (UserReportOnDay d : data) {
+			for (ReportOnDay d : data) {
 				if(d.getDate().equals(date)){
-					if("dau".equals(d.getEvent())){
-						v.setDau(d.getUserNum());
-					}else if("init_f".equals(d.getEvent())){
-						v.setInit_f(d.getUserNum());
-					}else if("show_s".equals(d.getEvent())){
-						v.setShow_s(d.getUserNum());
+					if(d.getEvent().lastIndexOf("_s")>-1){
+						v.setSucc(d.getCount());
+					}else if(d.getEvent().lastIndexOf("_f")>-1){
+						v.setFail(d.getCount());
 					}
 				}
 			}
