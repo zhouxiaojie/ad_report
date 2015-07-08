@@ -35,7 +35,8 @@
 							<option value="show_s">展示成功</option>							
 							<option value="show_f">展示失败</option>													
 							<option value="init_s">初始化成功</option>																				
-							<option value="init_f">初始化失败</option>
+							<option value="init_f">初始化失败</option>																										
+							<option value="click">点击</option>
 						</select>
 					</li>
 				</ol>

@@ -58,7 +58,8 @@
 					<select class ="form-control" id="event_select">
 							<option value="reqad">请求</option>
 							<option value="show">展示</option>													
-							<option value="init">初始化</option>	
+							<option value="init">初始化</option>			
+							<option value="click">点击</option>	
 						</select>
 					</div>
 						<button type="button" class="btn btn-primary" onclick="loadData()">查询</button>
