@@ -83,6 +83,9 @@ public class ReportController extends BaseController{
 		Integer startY = Integer.parseInt(start.substring(0, 4));
 		Integer endY = Integer.parseInt(end.substring(0, 4));
 		String[] events = {event+"_s",event+"_f"};
+		if("click".equals(event)){
+			events = new String[]{event};
+		}
 		List<ReportOnDayVo> voDate = new ArrayList<ReportOnDayVo>();
 		List<ReportOnDay> data = new ArrayList<ReportOnDay>();
 		for (String eventVal : events) {
@@ -102,7 +105,7 @@ public class ReportController extends BaseController{
 			v.setFmtDate(date);
 			for (ReportOnDay d : data) {
 				if(d.getDate().equals(date)){
-					if(d.getEvent().lastIndexOf("_s")>-1){
+					if(d.getEvent().lastIndexOf("_s")>-1||"click".equals(d.getEvent())){
 						v.setSucc(d.getCount());
 					}else if(d.getEvent().lastIndexOf("_f")>-1){
 						v.setFail(d.getCount());
