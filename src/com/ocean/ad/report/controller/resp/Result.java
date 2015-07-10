@@ -5,6 +5,7 @@ public class Result {
 	public static final int USER_EXISTS=300;
 	public static final int USER_ERROR=301;
 	public static final int EXCEPTION=500;
+	public static final int MONITOR_EXCEPTION=400;
 	private int code;
 	
 	public Result() {

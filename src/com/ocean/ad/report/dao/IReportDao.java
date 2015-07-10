@@ -25,8 +25,12 @@ public interface IReportDao {
 	public List<EventMonitorLineVo> selectLogEventOnMin(@Param("tableName") String tableName,@Param("event") String event,@Param("date") String date);
 	
 	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
-			+ "event =#{event} and min_date > #{currMin} group by time order by time;")
+			+ "event =#{event} and min_date > #{currMin} order by time;")
 	public List<EventMonitorLineVo> selectLogEventIncrOnMin(@Param("tableName") String tableName,@Param("event") String event,@Param("currMin") String currMin);
+	
+	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
+			+ "event =#{event} and min_date = #{min} ;")
+	public List<EventMonitorLineVo> selectLogEventByMin(@Param("tableName") String tableName,@Param("event") String event,@Param("min") String min);
 	
 	@Select("SELECT count as num,min_date as time FROM ${tableName} where "
 			+ "event =#{event} and min_date >= #{start} and min_date < #{end} order by time;")

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ocean.ad.report.constant.TablePre;
 import com.ocean.ad.report.controller.resp.BootgridResult;
+import com.ocean.ad.report.controller.resp.Result;
 import com.ocean.ad.report.dao.IReportDao;
 import com.ocean.ad.report.model.DonutVo;
 import com.ocean.ad.report.model.EventMonitorLineVo;
@@ -176,6 +177,26 @@ public class ReportController extends BaseController{
 		ca.set(Calendar.MILLISECOND,0);
 		List<EventMonitorLineVo> data=	reportService.getEventIncrOnMin(ca, event, currMin,interval==null?1:interval,now);
 		 return data;
+	}
+	
+	@RequestMapping(value="admin/report/monitor.json",method=RequestMethod.GET)
+	@ResponseBody
+	public Result monitor(){
+		String tableName = TablePre.LOG_EVENT_LOG_COUNT;
+		Date now = new Date();
+		Calendar ca = Calendar.getInstance();
+		ca.setTime(now);
+		ca.add(Calendar.MINUTE,-2);
+		ca.set(Calendar.SECOND,0);
+		ca.set(Calendar.MILLISECOND,0);
+		List<EventMonitorLineVo> data=	reportDao.selectLogEventByMin(tableName+DateUtil.DateYYYYFmt(ca.getTime()), "reqad_f",DateUtil.DateMinFmt(ca.getTime()));
+		Result re = new Result();
+		if(data!=null&&data.get(0).getNum()>10){
+			re.setCode(Result.MONITOR_EXCEPTION);
+		}else{
+			re.setCode(Result.SUCCESS);
+		}
+		 return re;
 	}
 	
 	@RequestMapping(value="admin/report/eventdynonmin.json",method=RequestMethod.POST)
