@@ -1,3 +1,5 @@
+<%@page import="java.util.Calendar"%>
+<%@page import="java.util.Date"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -5,6 +7,10 @@
 <html>
 <% String msg = (String)request.getAttribute("message");
    String today = (String)request.getAttribute("today");
+/*    Date now = new Date();
+   String year = today.substring(0,4);
+   String m=today.substring(5,7);
+   String d=today.substring(8,10); */
 %>
 <head>
 <%@include file="../../include.jsp"%>
@@ -91,11 +97,8 @@ $(function () {
                          
    
 });
-
 var si;
 var dyn_si;
-var chart;
-var dyn_chart;
 var check_sis=[];
 var interval=15;
 var point=60 *1000;
@@ -104,8 +107,8 @@ function addSeries(obj){
 	var event = $(obj).val();
 	var sname = $(obj).attr('sname');
 	var checked = obj.checked; 
-	chart = $('#container').highcharts();
-	dyn_chart= $('#dyn_container').highcharts();
+	var chart = $('#container').highcharts();
+	var dyn_chart= $('#dyn_container').highcharts();
 	var series = chart.series;
 	var dyn_series = dyn_chart.series
 	if(!checked){
@@ -116,21 +119,10 @@ function addSeries(obj){
 			}
 				
 		}
-		for(var i=0;i<series.length;i++){
-			var s = series[i];
-			if(s.name.indexOf(sname)>-1){
-				s.remove();
-				i--;
-			}
-				
-		}
-		for(var i=0;i<dyn_series.length;i++){
-			var s = dyn_series[i];
-			if(s.name.indexOf(sname)>-1){
-				s.remove();
-			}
-				
-		}
+		chart.get(event+"_y").remove();
+		chart.get(event+"_t").remove();
+		dyn_chart.get(event+"_d").remove();
+		
 		return;
 	}
 	$.post('<%=request.getContextPath()%>/admin/report/eventonmin.json',{'event':event,'interval':interval},function(json){
@@ -155,11 +147,15 @@ function addSeries(obj){
 			var dcurrMin;
 			if(!json.d||json.d.length>0)
 				dcurrMin=json.d[json.d.length-1].time;
-			var tseries=chart.addSeries({name:sname+"(t)",
+			chart.addSeries({
+							id:event+"_t",
+							name:sname+"(t)",
 							data:c,
 							event:event,
 				            pointInterval: interval * 60 * 1000});
-			var yseries=chart.addSeries({name:sname+"(y)",
+			var yseries=chart.addSeries({
+				id:event+"_y",
+				name:sname+"(y)",
 				data:y,
 				event:event,
 	            pointInterval: interval * 60 * 1000});
@@ -169,6 +165,7 @@ function addSeries(obj){
 				var s = dyn_series[i];
 				var name = s.name;
 				var data = [];
+				var id = s.options.id;
 				for(var j=0;j<s.data.length;j++){
 					data.push(s.data[j].y);
 				}
@@ -176,17 +173,18 @@ function addSeries(obj){
 				len--;
 				i--;
 				dyn_chart.addSeries({
+					id:id,
 					name:name,
 					data:data
 				});
 			}
-			var dseries=dyn_chart.addSeries({name:sname,
-				event:event,
-				data:d});
-			
+			dyn_chart.addSeries({
+				id:event+"_d",
+				name:sname,
+				data:d}).xAxis.setCategories(dx);
 			var check_si = setInterval(function () {
             	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':currMin,'event':event,'interval':interval},function(json){
-            		
+            		var tseries=chart.get(event+"_t");
             		if(json){
             			for(var i=0;i<json.length;i++){
             				tseries.addPoint(json[i].num, true, false);
@@ -202,6 +200,7 @@ function addSeries(obj){
             	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':dcurrMin,'event':event,'interval':1},function(json){
 
             		if(json){
+            			var dseries=dyn_chart.get(event+"_d");
             			for(var i=0;i<json.length;i++){
             				dseries.addPoint([json[i].time.substr(11,5),json[i].num], true, true);
             			}
@@ -265,15 +264,18 @@ function load(obj){
 			        },                                                                      
 			        exporting: {                                                            
 			            enabled: false                                                      
-			        },  
+			        },
+			        tooltip:{
+			        	xDateFormat:"%H:%M"
+			        },
 			        chart:{
 			        	type: 'spline',
 			        	events: {
 			                    load: function () {
 			                        si=setInterval(function () {
-			         				var series = chart.series[1];
 			                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':currMin,'event':event,'interval':interval},function(json){
 			                        		if(json){
+			         							var series = chart.get(event+"_t");
 			                        			for(var i=0;i<json.length;i++){
 			                        				 series.addPoint(json[i].num, true, false);
 			                        			}
@@ -295,7 +297,7 @@ function load(obj){
 			        xAxis: {
 			            type: 'datetime',
 			            dateTimeLabelFormats: {
-			                day: '%H %M'
+			                day: '%H:%M'
 			            }
 			        },
 			        plotOptions: {
@@ -307,11 +309,13 @@ function load(obj){
 			            }
 			        },
 			        series: [{
+			        	id:event+"_y",
 			        	name:sname+'(y)',
 			            data: y,
 			            pointInterval: interval * 60 * 1000 // one day
 			        },
 			        {	
+			        	id:event+"_t",
 			        	name:sname+'(t)',
 			            data:c,
 			            pointInterval: interval * 60 * 1000 // one day
@@ -325,11 +329,11 @@ function load(obj){
 			                load: function() {                                              
 			                                                                                
 			                    // set up the updating of the chart each second 
-			                    var dyn_c=this;
+			                    
 			                	dyn_si=setInterval(function () {
 		                        	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':dcurrMin,'event':event,'interval':1},function(json){
 		                        		
-			                	var series = dyn_c.series[0];
+			                	var series = dyn_chart.get(event+"_d");
 		                        		if(json){
 		                        			for(var i=0;i<json.length;i++){
 		                        				 series.addPoint([json[i].time.substr(11,5),json[i].num], true, true);
@@ -375,13 +379,16 @@ function load(obj){
 			        exporting: {                                                            
 			            enabled: false                                                      
 			        },                                                                      
-			        series: [{                                                              
+			        series: [{
+			        	id:event+"_d",
 			            name: sname,      
 			            data:d
 			        }]                                                                      
 			    });
 			 
 		}
+		chart = $('#container').highcharts();
+		dyn_chart= $('#dyn_container').highcharts();
 	},'json')    	
 
                         

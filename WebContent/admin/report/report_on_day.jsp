@@ -1,3 +1,6 @@
+<%@page import="com.ocean.util.DateUtil"%>
+<%@page import="java.util.Calendar"%>
+<%@page import="java.util.Date"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -5,6 +8,10 @@
 <html>
 <% String msg = (String)request.getAttribute("message");
    String today = (String)request.getAttribute("today");
+   Calendar ca = Calendar.getInstance();
+   ca.setTime(new Date());
+   ca.add(Calendar.MONTH, -1);
+   String ever = DateUtil.DateDefaultFmt(ca.getTime());
 %>
 <head>
 <%@include file="../../include.jsp"%>
@@ -35,9 +42,9 @@
 					</div>
 					<div class="form-group">
 						<div class="input-group date form_datetime  "
-									data-date="<%=today %>" data-date-format="yyyy-mm-dd" style="width:200px">
+									data-date="<%=ever %>" data-date-format="yyyy-mm-dd" style="width:200px">
 									<input class="form-control" size="16"  type="text" id="start"
-										value="<%=today%>" readonly> <span
+										value="<%=ever %>" readonly> <span
 										class="input-group-addon"><span
 										class="glyphicon glyphicon-th"></span></span>
 								</div>
