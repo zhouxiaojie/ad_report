@@ -167,20 +167,22 @@ function addSeries(obj){
 			var len = dyn_series.length;
 			for(var i=0;i<len;i++){
 				var s = dyn_series[i];
+				var name = s.name;
 				var data = [];
 				for(var j=0;j<s.data.length;j++){
 					data.push(s.data[j].y);
 				}
+				s.remove();
+				len--;
+				i--;
 				dyn_chart.addSeries({
-					name:s.name,
+					name:name,
 					data:data
 				});
-				s.remove()
 			}
 			var dseries=dyn_chart.addSeries({name:sname,
 				event:event,
 				data:d});
-			dseries.xAxis.setCategories(dx);
 			
 			var check_si = setInterval(function () {
             	$.post('<%=request.getContextPath()%>/admin/report/eventincronmin.json',{'currMin':currMin,'event':event,'interval':interval},function(json){
