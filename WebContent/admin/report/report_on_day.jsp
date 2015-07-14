@@ -33,7 +33,7 @@
 		<aside class="right-side" style="margin-left: 0px">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
-				<h5>用户报表</h5>
+				<h5>广告趋势图</h5>
 				<ol class="breadcrumb">
 					<li class="active">
 					<form class="form-inline" >
