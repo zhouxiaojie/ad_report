@@ -90,7 +90,7 @@ public class ReportController extends BaseController{
 		List<ReportOnDayVo> voDate = new ArrayList<ReportOnDayVo>();
 		List<ReportOnDay> data = new ArrayList<ReportOnDay>();
 		for (String eventVal : events) {
-			for(;startY<=endY;startY++){
+			for(int i=startY;i<=endY;i++){
 				 List<ReportOnDay> l = reportDao.selectLogEventCountOnDay(tableName+startY,start, end+" 23:59",eventVal);
 				 if(l!=null&&l.size()>0)
 					 data.addAll(l);			 
@@ -103,9 +103,9 @@ public class ReportController extends BaseController{
 		}
 		for (String date : set) {
 			ReportOnDayVo v = new ReportOnDayVo();
-			v.setFmtDate(date);
 			for (ReportOnDay d : data) {
 				if(d.getDate().equals(date)){
+					v.setFmtDate(date);
 					if(d.getEvent().lastIndexOf("_s")>-1||"click".equals(d.getEvent())){
 						v.setSucc(d.getCount());
 					}else if(d.getEvent().lastIndexOf("_f")>-1){
